@@ -82,8 +82,12 @@ sed -i s/"#maintenance_work_mem = 16MB"/"maintenance_work_mem = 256MB"/ /etc/pos
 sed -i s/"#autovacuum = on"/"autovacuum = off"/ /etc/postgresql/9.1/main/postgresql.conf
 sudo sh -c "echo 'kernel.shmmax=268435456' > /etc/sysctl.d/60-shmmax.conf"
 sudo service procps start
-sudo /etc/init.d/postgresql restart
 
+# Allow us to access postgresql from our local network
+read -p "What is your local IP Address? (will allow you to connect to the database from your network: " local_ip
+echo "host all all $local_ip/24 trust" >> /etc/postgresql/9.1/main/pg_hba.conf
+sed -i s/"#listen_addresses = 'localhost'"/"listen_addresses = '*'"/ /etc/postgresql/9.1/main/postgresql.conf
+sudo /etc/init.d/postgresql restart
 
 # Install Apache
 echo "Installing Apache2..."
