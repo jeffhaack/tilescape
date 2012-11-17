@@ -43,23 +43,7 @@
     <PolygonSymbolizer fill="#fcfbe7" gamma="0.75" />
   </Rule>
 </Style>
-<Layer name="land"
-  status="on"
-  srs="+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over">
-    <StyleName>land</StyleName>
-    <Datasource>
-       <Parameter name="dbname"><![CDATA[osm]]></Parameter>
-       <Parameter name="extent"><![CDATA[-20037508.34 -20037508.34 20037508.34 20037508.34]]></Parameter>
-       <Parameter name="file"><![CDATA[layers/land/ae26f3ca-10m-land.shp]]></Parameter>
-       <Parameter name="host"><![CDATA[108.166.89.242]]></Parameter>
-       <Parameter name="id"><![CDATA[land]]></Parameter>
-       <Parameter name="port"><![CDATA[5432]]></Parameter>
-       <Parameter name="project"><![CDATA[foss4g-2011]]></Parameter>
-       <Parameter name="srs"><![CDATA[+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over]]></Parameter>
-       <Parameter name="user"><![CDATA[postgres]]></Parameter>
-       <Parameter name="type"><![CDATA[shape]]></Parameter>
-    </Datasource>
-  </Layer>
+
 
 <Style name="processed_p" filter-mode="first" >
   <Rule>
@@ -67,14 +51,7 @@
     <PolygonSymbolizer fill="#fcfbe7" gamma="0.75" />
   </Rule>
 </Style>
-<Layer name="processed_p"
-  srs="+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over">
-    <StyleName>processed_p</StyleName>
-    <Datasource>
-       <Parameter name="file"><![CDATA[layers/processed_p/7f5a1dfb-coastline-good.shp]]></Parameter>
-       <Parameter name="type"><![CDATA[shape]]></Parameter>
-    </Datasource>
-  </Layer>
+
 
 <Style name="shoreline_300" filter-mode="first" >
   <Rule>
@@ -83,14 +60,7 @@
     <PolygonSymbolizer fill="#fcfbe7" gamma="0.75" />
   </Rule>
 </Style>
-<Layer name="shoreline_300"
-  srs="+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over">
-    <StyleName>shoreline_300</StyleName>
-    <Datasource>
-       <Parameter name="file"><![CDATA[layers/shoreline_300/ab6b4f6f-shoreline_300.shp]]></Parameter>
-       <Parameter name="type"><![CDATA[shape]]></Parameter>
-    </Datasource>
-  </Layer>
+
 
 <Style name="landuse_gen0" filter-mode="first" >
   <Rule>
