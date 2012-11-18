@@ -40,8 +40,9 @@ CRON_TIME="0,5,10,15,20,25,30,35,40,45,50,55 * * * *" 	# How often should the da
 #####################
 # Directories/Files #
 #####################
-THIS=${PWD}
-HOME=/root/tilescape  # Change this if you want to put your tilescape project files elsewhere
+THIS="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+HOME=$(readlink -m $THIS/..)
+#HOME=/root/tilescape  # Change this if you want to put your tilescape project files elsewhere
 #HOME=~
 SRC=$HOME/setup/src
 DATA=$HOME/setup/data
