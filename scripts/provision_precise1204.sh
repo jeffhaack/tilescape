@@ -54,11 +54,12 @@ CRON_TIME="0,5,10,15,20,25,30,35,40,45,50,55 * * * *" 	# How often should the da
 #####################
 # Directories/Files #
 #####################
-HOME=~
-THIS=${PWD}
-SRC=$HOME/src
-DATA=$HOME/data
-BIN=$HOME/bin
+HOME=~/TileScape  # Change this if you want to put your tilescape project files elsewhere
+#THIS=${PWD}
+#HOME=~
+SRC=$HOME/setup/src
+DATA=$HOME/setup/data
+BIN=$HOME/setup/bin
 DIFF_WORKDIR=$DATA/.diffs
 OSM2PGSQL_STYLESHEET=$DATA/multilingual.style
 
@@ -82,21 +83,27 @@ MAPNIK_PYTHON_DIR=/var/lib/python-support/python2.7/mapnik/
 ######################
 ## Make directories ##
 ######################
+if [ ! -d $HOME ]; then
+	echo "Making directory $HOME"
+	mkdir $HOME
+else
+	echo "Directory $HOME exists"
+fi
 if [ ! -d $SRC ]; then
 	echo "Making directory $SRC"
-	mkdir $SRC
+	mkdir -p $SRC
 else
 	echo "Directory $SRC exists"
 fi
 if [ ! -d $DATA ]; then
 	echo "Making directory $DATA"
-	mkdir $DATA
+	mkdir -p $DATA
 else
 	echo "Directory $DATA exists"
 fi
 if [ ! -d $BIN ]; then
 	echo "Making directory $BIN"
-	mkdir $BIN
+	mkdir -p $BIN
 else
 	echo "Directory $BIN exists"
 fi
@@ -193,7 +200,7 @@ if [ ! -d $MAPNIK_PYTHON_DIR ]; then
 	echo "##############################################"
 	echo "Installing Mapnik..."
 	echo "##############################################"
-	sudo add-apt-repository ppa:mapnik/v2.1.0
+	sudo add-apt-repository -y ppa:mapnik/v2.1.0
 	sudo apt-get update
 	sudo apt-get install -y libmapnik mapnik-utils python-mapnik
 else
@@ -260,12 +267,7 @@ fi
 
 # Setup Cron Job
 # We'll create a script to update the database and then add it to the crontab
-if [[ ! "$1" == "-y" ]] ; then
-	read -p "Would you like to add diff updating to cron? (y/n): " update_cron
-else
-	update_cron="y"
-fi
-if [[ "$update_cron" == [Yy] ]]; then
+if [[ $DIFF_UPDATE ]]; then
 	touch $DATA/update_osm_db.sh
 	echo "#!/bin/bash
 # This script will update the $DB_NAME database with OpenStreetMap Data...
@@ -358,14 +360,14 @@ sudo /etc/init.d/apache2 restart
 ## Get shapefile data ##
 ########################
 sudo apt-get -y install unzip
-cd $THIS
-if [ ! -d ../shared ]; then
-	mkdir ../shared
+cd $HOME
+if [ ! -d shared ]; then
+	mkdir shared
 fi
-if [ ! -d ../shared/shapefiles ]; then
-	mkdir ../shared/shapefiles
+if [ ! -d shared/shapefiles ]; then
+	mkdir shared/shapefiles
 fi
-cd ../shared/shapefiles
+cd shared/shapefiles
 wget http://mapbox-geodata.s3.amazonaws.com/natural-earth-1.3.0/physical/10m-land.zip
 wget http://mapbox-geodata.s3.amazonaws.com/natural-earth-1.4.0/cultural/10m-populated-places-simple.zip
 wget http://tilemill-data.s3.amazonaws.com/osm/coastline-good.zip
