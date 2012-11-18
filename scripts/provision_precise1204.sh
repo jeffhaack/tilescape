@@ -17,6 +17,8 @@
 # Get settings from separate file
 source settings.sh
 
+echo "$HOME"
+
 ######################
 ## Make directories ##
 ######################
@@ -279,8 +281,8 @@ font_dir_recurse=false
 
 [default]
 URI=/$DB_NAME/
-XML=/root/src/mapnik/osm.xml
-DESCRIPTION=This is the standard osm mapnik style
+XML=$HOME/project/default/default.xml
+DESCRIPTION=This is the default TileScape style
 ;ATTRIBUTION=&copy;<a href=\"http://www.openstreetmap.org/\">OpenStreetMap</a> and <a href=\"http://wiki.openstreetmap.org/w\
 iki/Contributors\">contributors</a>, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>
 ;HOST=$IP
@@ -322,6 +324,26 @@ unzip shoreline_300.zip
 cd $THIS
 sed -i s/"bounds = (-6.5, 49.5, 2.1, 59)"/"bounds = ($MIN_LON, $MIN_LAT, $MAX_LON, $MAX_LAT)"/ generate_image.py
 ./generate_image.py
+
+
+#####################################################
+## Setup the renderd/mod_tile with default tileset ##
+#####################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
