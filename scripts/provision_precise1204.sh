@@ -111,6 +111,9 @@ else
 fi
 echo "Updating apt-get"
 sudo apt-get update
+sudo apt-get -y install libfreetype6-dev libtool autoconf make libboost-all-dev
+#git clone git://github.com/ramunasd/mod_tile.git
+#apt-get -y install autoconf make
 
 ##############################
 ## Setup PostgreSQL/PostGIS ##
@@ -317,46 +320,6 @@ osm2pgsql -a -s -b \"\$MIN_LON,\$MIN_LAT,\$MAX_LON,\$MAX_LAT\" -U postgres -d \$
 	rm mycron
 fi
 
-################################
-## Setup Renderd and mod_tile ##
-################################
-# see http://switch2osm.org/serving-tiles/building-a-tile-server-from-packages/
-sudo apt-get -y install libapache2-mod-tile
-touch /var/lib/mod_tile/planet-import-complete # the timestamp on this will tell mod_tile when to re-render tiles (shouldn't be useful for me though, cause i need an expiry list)
-
-# Edit /etc/apache2/sites-available/tileserver_site
-IP=$(curl ifconfig.me)
-sed -i s/"a.tile.mytileserver.org b.tile.mytileserver.org c.tile.mytileserver.org"/"$IP"/ /etc/apache2/sites-available/tileserver_site
-
-# Now edit the renderd daemon settings
-rm /etc/renderd.conf
-touch /etc/renderd.conf
-echo "[renderd]
-stats_file=/var/run/renderd/renderd.stats
-socketname=/var/run/renderd/renderd.sock
-num_threads=4
-tile_dir=/var/lib/mod_tile ; DOES NOT WORK YET
-
-[mapnik]
-plugins_dir=/usr/lib/mapnik/2.0/input
-font_dir=/usr/share/fonts/truetype/ttf-dejavu
-font_dir_recurse=false
-
-[default]
-URI=/$DB_NAME/
-XML=$HOME/project/default/default.xml
-DESCRIPTION=This is the default TileScape style
-;ATTRIBUTION=&copy;<a href=\"http://www.openstreetmap.org/\">OpenStreetMap</a> and <a href=\"http://wiki.openstreetmap.org/w\
-iki/Contributors\">contributors</a>, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>
-;HOST=$IP
-;SERVER_ALIAS=$IP
-;HTCPHOST=proxy.openstreetmap.org" > /etc/renderd.conf
-
-# And restart up the daemon and restart Apache
-sudo /etc/init.d/renderd restart
-sudo /etc/init.d/apache2 restart
-
-
 
 ########################
 ## Get shapefile data ##
@@ -378,23 +341,6 @@ unzip 10m-land.zip
 unzip 10m-populated-places-simple.zip
 unzip coastline-good.zip
 unzip shoreline_300.zip
-
-
-
-#############################
-## Generate a sample image ##
-#############################
-cd $THIS
-sed -i s/"bounds = (-6.5, 49.5, 2.1, 59)"/"bounds = ($MIN_LON, $MIN_LAT, $MAX_LON, $MAX_LAT)"/ generate_image.py
-./generate_image.py
-
-
-#####################################################
-## Setup the renderd/mod_tile with default tileset ##
-#####################################################
-
-
-
 
 
 
