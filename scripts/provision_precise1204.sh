@@ -9,41 +9,79 @@
 # the Free Software Foundation; either version 3 of the License, or
 # (at your option) any later version.
 #
-# This script will take a freshly setup Ubuntu 11.04 machine and set it
+# This script will take a freshly setup Ubuntu 12.04 machine and set it
 # up with an OpenStreetMap database that is continually updated.  It
 # also sets up Mapnik to render tiles and images.
 ########################################################################
 
-########## USER OPTIONS - DON'T CHANGE UNLESS YOU KNOW WHAT YOU'RE DOING ###########
-EXPORT_FILE="http://download.geofabrik.de/openstreetmap/asia/gaza.osm.bz2" 	# The file you want to download and import
-OSM_FILE="gaza.osm.bz2"
-LANGUAGE="name:ka" # add a name tag into the database (your stylesheet still must utilize this)
-# We need the bounding box of this area
+#####################################
+########## CUSTOM OPTIONS ###########
+#####################################
+
+#################
+# File Settings #
+#################
+# Set this to FILE OR EXTRACT
+IMPORT_STRATEGY="FILE"
+# Set these options - if you are using EXTRACT strategy, the bounding box you provide
+#  will be sliced out of the file you download
+FILE="gaza.osm.bz2"
+DOWNLOAD_FILE="http://download.geofabrik.de/openstreetmap/asia/$FILE"
 MIN_LON="34.125" 	# left
 MIN_LAT="31.16" 	# bottom
 MAX_LON="34.648" 	# right
 MAX_LAT="31.708" 	# top
-DB_NAME="osm" 		# The name you want your database to have (you can change this)
-DB_USER=postgres 	# The database user for the DB - (don't change this)
+
+#####################
+# Database Settings #
+#####################
+DB_NAME="osm" 			# The name you want your database to have (you can change this)
+DB_USER=postgres 		# The database user for the DB - (don't change this)
+LOCAL_IP="176.73.15.6"	# Provide your local IP address so you can connect to your database remotely
+
+###################
+# Import Settings #
+###################
+# Set this to an extra language you want to include in your database
+LANGUAGE="name:ka" # add a name tag into the database (your stylesheet still must utilize this)
+
+###################
+# Update Settings #
+###################
+DIFF_UPDATE=true
 CRON_TIME="0,5,10,15,20,25,30,35,40,45,50,55 * * * *" 	# How often should the database be updated?
 
-# Directories
+#####################
+# Directories/Files #
+#####################
 HOME=~
-SETUP=$HOME/server-setup-scripts
+THIS=${PWD}
 SRC=$HOME/src
 DATA=$HOME/data
 BIN=$HOME/bin
 DIFF_WORKDIR=$DATA/.diffs
 OSM2PGSQL_STYLESHEET=$DATA/multilingual.style
 
-# Program Locations - we will install these programs if they don't already exist
+#####################
+# Program Locations #
+#####################
+# we will install these programs if they don't already exist
 POSTGRESQL=/etc/init.d/postgresql
 APACHE=/etc/init.d/apache2
 OSMOSIS=/bin/osmosis
 OSM2PGSQL=/usr/bin/osm2pgsql
 MAPNIK_PYTHON_DIR=/var/lib/python-support/python2.7/mapnik/
 
-# Make directories
+#########################################
+########## END CUSTOM OPTIONS ###########
+#########################################
+
+
+
+
+######################
+## Make directories ##
+######################
 if [ ! -d $SRC ]; then
 	echo "Making directory $SRC"
 	mkdir $SRC
@@ -62,8 +100,15 @@ if [ ! -d $BIN ]; then
 else
 	echo "Directory $BIN exists"
 fi
+echo "Updating apt-get"
+sudo apt-get update
 
+##############################
+## Setup PostgreSQL/PostGIS ##
+##############################
+echo "############################################################"
 echo "Installing PostgreSQL 9.1 and PostGIS extensions..."
+echo "############################################################"
 sudo apt-get -y install python-software-properties
 sudo add-apt-repository -y ppa:pitti/postgresql
 sudo apt-get update
@@ -82,20 +127,28 @@ sed -i s/"#maintenance_work_mem = 16MB"/"maintenance_work_mem = 256MB"/ /etc/pos
 sed -i s/"#autovacuum = on"/"autovacuum = off"/ /etc/postgresql/9.1/main/postgresql.conf
 sudo sh -c "echo 'kernel.shmmax=268435456' > /etc/sysctl.d/60-shmmax.conf"
 sudo service procps start
-
 # Allow us to access postgresql from our local network
-read -p "What is your local IP Address? (will allow you to connect to the database from your network: " local_ip
-echo "host all all $local_ip/24 trust" >> /etc/postgresql/9.1/main/pg_hba.conf
+echo "host all all $LOCAL_IP/24 trust" >> /etc/postgresql/9.1/main/pg_hba.conf
 sed -i s/"#listen_addresses = 'localhost'"/"listen_addresses = '*'"/ /etc/postgresql/9.1/main/postgresql.conf
 sudo /etc/init.d/postgresql restart
 
-# Install Apache
+
+####################
+## Install Apache ##
+####################
+echo "##############################################"
 echo "Installing Apache2..."
+echo "##############################################"
 sudo apt-get -y install apache2
 
-# Setup Osmosis
+
+###################
+## Setup Osmosis ##
+###################
 if [ ! -x $OSMOSIS ]; then
+	echo "##############################################"
 	echo "Installing Osmosis..."
+	echo "##############################################"
 	cd $SRC
 	sudo apt-get -y install openjdk-6-jdk
 	wget http://bretth.dev.openstreetmap.org/osmosis-build/osmosis-latest.tgz
@@ -108,9 +161,14 @@ else
 	echo "Osmosis already installed..."
 fi
 
-# Install osm2pgsql
+
+#######################
+## Install osm2pgsql ##
+#######################
 if [ ! -x $OSM2PGSQL ]; then
+	echo "##############################################"
 	echo "Installing Osm2pgsql..."
+	echo "##############################################"
 	sudo add-apt-repository -y ppa:kakrueger/openstreetmap
 	sudo apt-get update
 	sudo apt-get -y install osm2pgsql
@@ -118,93 +176,77 @@ else
 	echo "Osm2pgsql already installed..."
 fi
 
-# Install Mapnik
+
+################################################
+## Adding additional language to our database ##
+################################################
+cd $DATA
+wget http://svn.openstreetmap.org/applications/utils/export/osm2pgsql/default.style
+mv default.style $OSM2PGSQL_STYLESHEET
+echo "node,way   $LANGUAGE      text         linear" >> $OSM2PGSQL_STYLESHEET
+
+
+##########################
+## Install Mapnik v 2.1 ##
+##########################
 if [ ! -d $MAPNIK_PYTHON_DIR ]; then
+	echo "##############################################"
 	echo "Installing Mapnik..."
-	sudo apt-get install -y python-software-properties
+	echo "##############################################"
 	sudo add-apt-repository ppa:mapnik/v2.1.0
 	sudo apt-get update
 	sudo apt-get install -y libmapnik mapnik-utils python-mapnik
-	#sudo apt-get -y install libmapnik2-2.0 libmapnik2-dev mapnik-utils python-mapnik2
 else
 	echo "Mapnik already installed..."
 fi
 
-# Create an OSM database
-if [[ ! "$1" == "-y" ]] ; then
-	read -p "Would you like to create a database named $DB_NAME for OpenStreetMap data? (y/n): " make_osm
-else
-	make_osm="y"
-fi
-if [[ "$make_osm" == [Yy] ]]; then
-    psql -U postgres -c "create database $DB_NAME;"
-#    psql -U postgres -d $DB_NAME -c "create language plpgsql;"
-    psql -U postgres -d $DB_NAME -f /usr/share/postgresql/9.1/contrib/postgis-1.5/postgis.sql
-    psql -U postgres -d $DB_NAME -f /usr/share/postgresql/9.1/contrib/postgis-1.5/spatial_ref_sys.sql
-    #psql -U postgres -d $DB_NAME -f /usr/share/postgresql/9.1/contrib/_int.sql # need this for the diff updating ???
-fi
 
-# Get data
-if [[ ! "$1" == "-y" ]] ; then
-	read -p "Would you like to download data from Geofabrik? (y/n): " get_data
-else
-	get_data="y"
-fi
-if [[ "$get_data" == [Yy] ]]; then
-	echo "Downloading $EXPORT_FILE..."
-	wget $EXPORT_FILE -O $DATA/$OSM_FILE
-fi
-
-# Import data
-if [[ "$make_osm" == [Yy] && "$get_data" == [Yy] ]]; then
-	if [[ ! "$1" == "-y" ]] ; then
-		read -p "Import the data file into your database? (y/n): " import_data
-	else
-		import_data="y"
-	fi
-	if [[ "$import_data" == [Yy] ]]; then
-		##############################
-		### Making it multilingual ###
-		cd $DATA
-		wget http://svn.openstreetmap.org/applications/utils/export/osm2pgsql/default.style
-		mv default.style $OSM2PGSQL_STYLESHEET
-		echo "node,way   $LANGUAGE      text         linear" >> $OSM2PGSQL_STYLESHEET
-		##############################
-		osm2pgsql --slim -U postgres -d $DB_NAME -S $OSM2PGSQL_STYLESHEET --cache-strategy sparse --cache 10 $DATA/$OSM_FILE
-	fi
-else
-	echo "Not importing file into database..."
-fi
+############################
+## Create an OSM database ##
+############################
+echo "##############################################"
+echo "Creating database $DB_NAME..."
+echo "##############################################"
+psql -U postgres -c "create database $DB_NAME;"
+psql -U postgres -d $DB_NAME -f /usr/share/postgresql/9.1/contrib/postgis-1.5/postgis.sql
+psql -U postgres -d $DB_NAME -f /usr/share/postgresql/9.1/contrib/postgis-1.5/spatial_ref_sys.sql
 
 
-######
-# This installs the osm mapnik tools, basically gets the big shapefiles we needs and gives a fallback stylsheet
-cd $SRC
-sudo apt-get -y install subversion unzip
-svn co http://svn.openstreetmap.org/applications/rendering/mapnik
-cd mapnik
-./get-coastlines.sh
-./generate_xml.py --dbname osm --user postgres --accept-none
-./generate_image.py
-cp image.png /var/www
-#####
-
-# Setup Minutely Mapnik updates
-if [[ ! "$1" == "-y" ]] ; then
-	read -p "Would you like to import minutely mapnik diffs: (y/n) " update_diffs
-else
-	update_diffs="y"
+##############
+## Get data ##
+##############
+echo "##############################################"
+echo "Downloading $DOWNLOAD_FILE..."
+echo "##############################################"
+wget $DOWNLOAD_FILE -O $DATA/$FILE
+# Let's get the timestamp of the file too
+YEAR=$(date -r $DATA/$FILE +%Y)
+MONTH=$(date -r $DATA/$FILE +%m)
+DAY=$(date -r $DATA/$FILE +%d)
+HOUR=$(date -r $DATA/$FILE +%k)
+MINUTE=$(date -r $DATA/$FILE +%M)
+SECOND=$(date -r $DATA/$FILE +%S)
+if [[ "$IMPORT_STRATEGY" == "EXTRACT" ]]; then
+	osmosis --rx $DATA/$FILE --bb left=$MIN_LON top=$MAX_LAT right=$MAX_LON bottom=$MIN_LAT --wx $DATA/extract.osm.bz2
+	FILE="extract.osm.bz2"
 fi
-if [[ "$update_diffs" == [Yy] ]]; then
+
+#################
+## Import data ##
+#################
+echo "##############################################"
+echo "Importing Data..."
+echo "##############################################"
+osm2pgsql --slim -U postgres -d $DB_NAME -S $OSM2PGSQL_STYLESHEET --cache-strategy sparse --cache 10 $DATA/$FILE
+
+
+###################################
+## Setup Minutely Mapnik updates ##
+###################################
+if [[ $DIFF_UPDATE ]]; then
 	echo "Diff information will be stored in $DIFF_WORKDIR"
-	echo "Using the file $DATA/$OSM_FILE"
+	echo "Using the file $DATA/$FILE"
 	echo "Using the bounding box $MIN_LON,$MIN_LAT,$MAX_LON,$MAX_LAT"
-	YEAR=$(date -r $DATA/$OSM_FILE +%Y)
-	MONTH=$(date -r $DATA/$OSM_FILE +%m)
-	DAY=$(date -r $DATA/$OSM_FILE +%d)
-	HOUR=$(date -r $DATA/$OSM_FILE +%k)
-	MINUTE=$(date -r $DATA/$OSM_FILE +%M)
-	SECOND=$(date -r $DATA/$OSM_FILE +%S)
 	echo "We're going to load recent changes first..."
 	if [ ! -d $DIFF_WORKDIR ]; then
 		mkdir $DIFF_WORKDIR
@@ -271,37 +313,16 @@ osm2pgsql -a -s -b \"\$MIN_LON,\$MIN_LAT,\$MAX_LON,\$MAX_LAT\" -U postgres -d \$
 	rm mycron
 fi
 
-# Get shapefile data
-sudo apt-get -y install unzip
-cd $DATA
-mkdir shp
-cd shp
-wget http://mapbox-geodata.s3.amazonaws.com/natural-earth-1.3.0/physical/10m-land.zip
-wget http://tilemill-data.s3.amazonaws.com/osm/coastline-good.zip
-wget http://tilemill-data.s3.amazonaws.com/osm/shoreline_300.zip
-unzip 10m-land.zip
-unzip coastline-good.zip
-unzip shoreline_300.zip
-
-# Setup Mapnik for OSM basics
-cd mapnik
-mkdir osm
-mkdir osm/tiles
-chmod +x generate_image.py
-chmod +x generate_tiles.py
-./generate_image.py
-cp image.png /var/www
-IP=$(curl ifconfig.me)
-echo "Go to http://$IP/image.png to see."
-
-
+################################
+## Setup Renderd and mod_tile ##
+################################
 # see http://switch2osm.org/serving-tiles/building-a-tile-server-from-packages/
 sudo apt-get -y install libapache2-mod-tile
 touch /var/lib/mod_tile/planet-import-complete # the timestamp on this will tell mod_tile when to re-render tiles (shouldn't be useful for me though, cause i need an expiry list)
 
 # Edit /etc/apache2/sites-available/tileserver_site
 IP=$(curl ifconfig.me)
-sed -i s/"a.tile.openstreetmap.org b.tile.openstreetmap.org c.tile.openstreetmap.org d.tile.openstreetmap.org"/"$IP"/ /etc/apache2/sites-available/tileserver_site
+sed -i s/"a.tile.mytileserver.org b.tile.mytileserver.org c.tile.mytileserver.org"/"$IP"/ /etc/apache2/sites-available/tileserver_site
 
 # Now edit the renderd daemon settings
 rm /etc/renderd.conf
@@ -318,7 +339,7 @@ font_dir=/usr/share/fonts/truetype/ttf-dejavu
 font_dir_recurse=false
 
 [default]
-URI=/osm/
+URI=/$DB_NAME/
 XML=/root/src/mapnik/osm.xml
 DESCRIPTION=This is the standard osm mapnik style
 ;ATTRIBUTION=&copy;<a href=\"http://www.openstreetmap.org/\">OpenStreetMap</a> and <a href=\"http://wiki.openstreetmap.org/w\
@@ -331,13 +352,37 @@ iki/Contributors\">contributors</a>, <a href=\"http://creativecommons.org/licens
 sudo /etc/init.d/renderd restart
 sudo /etc/init.d/apache2 restart
 
-#$BIN/mod_tile/renderd
-#/etc/init.d/apache2 restart
 
-# Add our sample map.html to /var/ww
-cd $SETUP
-cp mapnik/map.html /var/www/map.html
-sed -i s/"TILE_LOCATION"/"$IP\/osm"/ /var/www/map.html
-echo "Go to http://$IP/map.html to see."
 
-################################################################################################
+########################
+## Get shapefile data ##
+########################
+sudo apt-get -y install unzip
+cd $THIS
+if [ ! -d ../shared ]; then
+	mkdir ../shared
+fi
+if [ ! -d ../shared/shapefiles ]; then
+	mkdir ../shared/shapefiles
+fi
+cd ../shared/shapefiles
+wget http://mapbox-geodata.s3.amazonaws.com/natural-earth-1.3.0/physical/10m-land.zip
+wget http://mapbox-geodata.s3.amazonaws.com/natural-earth-1.4.0/cultural/10m-populated-places-simple.zip
+wget http://tilemill-data.s3.amazonaws.com/osm/coastline-good.zip
+wget http://tilemill-data.s3.amazonaws.com/osm/shoreline_300.zip
+unzip 10m-land.zip
+unzip 10m-populated-places-simple.zip
+unzip coastline-good.zip
+unzip shoreline_300.zip
+
+
+
+
+
+
+
+
+
+
+
+
