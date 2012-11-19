@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 try:
-    import mapnik2 as mapnik
+    import mapnik as mapnik
 except:
     import mapnik
 

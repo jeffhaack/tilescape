@@ -205,9 +205,42 @@ if [ ! -d $MAPNIK_PYTHON_DIR ]; then
 	echo "##############################################"
 	echo "Installing Mapnik..."
 	echo "##############################################"
-	sudo add-apt-repository -y ppa:mapnik/v2.1.0
 	sudo apt-get update
-	sudo apt-get install -y libmapnik mapnik-utils python-mapnik
+	sudo apt-get upgrade
+	sudo apt-get dist-upgrade
+	sudo apt-get install subversion autoconf unzip
+	sudo apt-get install python-software-properties
+	sudo add-apt-repository ppa:mapnik/boost
+	sudo apt-get update
+	sudo apt-get install libboost-dev libboost-filesystem-dev \
+	libboost-program-options-dev libboost-python-dev \
+	libboost-regex-dev libboost-system-dev libboost-thread-dev \
+	g++ cpp libicu-dev libboost-filesystem-dev \
+	libboost-program-options-dev \
+	libboost-python-dev libboost-regex-dev \
+	libboost-system-dev libboost-thread-dev \
+	python-dev libxml2 libxml2-dev \
+	libfreetype6 libfreetype6-dev \
+	libjpeg-dev \
+	libltdl7 libltdl-dev \
+	libpng-dev \
+	libgeotiff-dev libtiff-dev libtiffxx0c2 \
+	libcairo2 libcairo2-dev python-cairo python-cairo-dev \
+	libcairomm-1.0-1 libcairomm-1.0-dev \
+	ttf-unifont ttf-dejavu ttf-dejavu-core ttf-dejavu-extra \
+	git build-essential python-nose libtool libgeos-dev libpq-dev \
+	libbz2-dev proj \
+	libgdal1-dev python-gdal \
+	libsqlite3-dev
+	cd $SRC
+	git clone http://github.com/mapnik/mapnik
+	cd mapnik
+	./configure
+	make
+	sudo make install
+	#sudo add-apt-repository -y ppa:mapnik/v2.1.0
+	#sudo apt-get update
+	#sudo apt-get install -y libmapnik mapnik-utils python-mapnik
 else
 	echo "Mapnik already installed..."
 fi
@@ -341,89 +374,6 @@ unzip 10m-land.zip
 unzip 10m-populated-places-simple.zip
 unzip coastline-good.zip
 unzip shoreline_300.zip
-
-
-################################
-## Setup Renderd and mod_tile ##
-################################
-#apt-get -y install subversion
-#sudo apt-get install libfreetype6-dev libtool
-#git clone git://github.com/ramunasd/mod_tile.git
-#apt-get -y install autoconf make
-apache2-threaded-dev
-
-# see http://switch2osm.org/serving-tiles/building-a-tile-server-from-packages/
-sudo apt-get -y install libapache2-mod-tile
-touch /var/lib/mod_tile/planet-import-complete # the timestamp on this will tell mod_tile when to re-render tiles (shouldn't be useful for me though, cause i need an expiry list)
-
-# Edit /etc/apache2/sites-available/tileserver_site
-IP=$(curl ifconfig.me)
-sed -i s/"a.tile.mytileserver.org b.tile.mytileserver.org c.tile.mytileserver.org"/"$IP"/ /etc/apache2/sites-available/tileserver_site
-
-# Now edit the renderd daemon settings
-rm /etc/renderd.conf
-touch /etc/renderd.conf
-echo "[renderd]
-stats_file=/var/run/renderd/renderd.stats
-socketname=/var/run/renderd/renderd.sock
-num_threads=4
-tile_dir=/var/lib/mod_tile ; DOES NOT WORK YET
-
-[mapnik]
-plugins_dir=/usr/lib/mapnik/2.0/input
-font_dir=/usr/share/fonts/truetype/ttf-dejavu
-font_dir_recurse=false
-
-[default]
-URI=/$DB_NAME/
-XML=$HOME/project/default/default.xml
-DESCRIPTION=This is the default TileScape style
-;ATTRIBUTION=&copy;<a href=\"http://www.openstreetmap.org/\">OpenStreetMap</a> and <a href=\"http://wiki.openstreetmap.org/w\
-iki/Contributors\">contributors</a>, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>
-;HOST=$IP
-;SERVER_ALIAS=$IP
-;HTCPHOST=proxy.openstreetmap.org" > /etc/renderd.conf
-
-# And restart up the daemon and restart Apache
-sudo /etc/init.d/renderd restart
-sudo /etc/init.d/apache2 restart
-
-
-
-#############################
-## Generate a sample image ##
-#############################
-cd $THIS
-sed -i s/"bounds = (-6.5, 49.5, 2.1, 59)"/"bounds = ($MIN_LON, $MIN_LAT, $MAX_LON, $MAX_LAT)"/ generate_image.py
-./generate_image.py
-cp image.png /var/www
-echo "#########################################"
-echo "############___#########___##############"
-echo "############|##|#######|##|##############"
-echo "############|__|#######|__|##############"
-echo "#########################################"
-echo "###################>>>###################"
-echo "####################>>###################"
-echo "#########################################"
-echo "###########|||#############||############"
-echo "#############|||||||||||||||#############"
-echo "#########################################"
-echo ""
-echo "Visit http://$IP/image.png to see a sample image rendered with the default stylesheet"
-echo ""
-
-#########################################
-## Add our sample map.html to /var/www ##
-#########################################
-cd $THIS
-cp map.html /var/www/map.html
-sed -i s/"TILE_LOCATION"/"$IP\/$DB_NAME"/ /var/www/map.html
-echo "Go to http://$IP/map.html to see."
-
-
-
-
-
 
 
 
