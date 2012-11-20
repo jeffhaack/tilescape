@@ -7,21 +7,40 @@
  <!--[if lte IE 8]>
      <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.4/leaflet.ie.css" />
  <![endif]-->
-  
-	<script src="http://cdn.leafletjs.com/leaflet-0.4/leaflet.js"></script>  
+ 
+	<script src="http://cdn.leafletjs.com/leaflet-0.4/leaflet.js"></script>
+	<script src="http://openlayers.org/api/OpenLayers.js"></script>
 </head>
-<body>
+<body onload="init()">
 
-	<div id="map" style="width: 80%; height: 80%"></div>
+	<h2 style="position: absolute; left:0px; top: 0px;">Leaflet Map</h2>
+	<div id="leaflet-map" style="width: 500px; height: 600px; position: absolute; left:0px; top: 50px;"></div>
+	<h2 style="position: absolute; right:400px; top: 0px;">OpenLayers Map</h2>
+	<div id="ol-map" style="width: 500px; height: 600px; position: absolute; right:0px; top: 50px;"></div>
 
 <script>
-		var map = L.map('map').setView([33.125, 30.5], 5)
+		var map = L.map('leaflet-map').setView([33.125, 30.5], 5)
 
-		L.tileLayer('http://TILE_LOCATION/{z}/{x}/{y}.png', {
+		tmsLayer = new L.tileLayer('tilecache/tilecache.cgi/1.0.0/osm/{z}/{x}/{y}.png', {
 			maxZoom: 18,
+			tms: true,
 			attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
-		}).addTo(map);
+		});
+
+		map.addLayer(tmsLayer);
+</script>
+
+<script type="text/javascript">
+    var map, layer;
+
+    map = new OpenLayers.Map( $('ol-map'), {'maxResolution': 360/512});
+    layer = new OpenLayers.Layer.TMS( "VMap0", 
+            "tilecache/tilecache.cgi/", {layername: 'osm', type: 'png' } );
+    map.addLayer(layer);
+    map.addControl(new OpenLayers.Control.Permalink());
+    if (!map.getCenter()) map.zoomToMaxExtent();
 
 </script>
 
 </body>
+
