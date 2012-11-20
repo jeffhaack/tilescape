@@ -183,7 +183,7 @@ if [ ! -x $OSM2PGSQL ]; then
 	echo "##############################################"
 	sudo add-apt-repository -y ppa:kakrueger/openstreetmap
 	sudo apt-get update
-	sudo apt-get -y install osm2pgsql
+	sudo apt-get -y install -y osm2pgsql
 else
 	echo "Osm2pgsql already installed..."
 fi
@@ -256,6 +256,9 @@ osm2pgsql --slim -U postgres -d $DB_NAME -S $OSM2PGSQL_STYLESHEET --cache-strate
 ## Setup Minutely Mapnik updates ##
 ###################################
 if [[ $DIFF_UPDATE ]]; then
+	echo "##############################################"
+	echo "Importing Diffs..."
+	echo "##############################################"
 	echo "Diff information will be stored in $DIFF_WORKDIR"
 	echo "Using the file $DATA/$FILE"
 	echo "Using the bounding box $MIN_LON,$MIN_LAT,$MAX_LON,$MAX_LAT"
@@ -273,6 +276,9 @@ fi
 # Setup Cron Job
 # We'll create a script to update the database and then add it to the crontab
 if [[ $DIFF_UPDATE ]]; then
+	echo "##############################################"
+	echo "Setting up cron job to apply diffs..."
+	echo "##############################################"
 	touch $DATA/update_osm_db.sh
 	echo "#!/bin/bash
 # This script will update the $DB_NAME database with OpenStreetMap Data...
@@ -324,6 +330,9 @@ fi
 ########################
 ## Get shapefile data ##
 ########################
+echo "##############################################"
+echo "Getting shapefile data..."
+echo "##############################################"
 sudo apt-get -y install unzip
 cd $HOME
 if [ ! -d shared ]; then
@@ -343,56 +352,34 @@ unzip coastline-good.zip
 unzip shoreline_300.zip
 
 
-################################
-## Setup Renderd and mod_tile ##
-################################
-#apt-get -y install subversion
-#sudo apt-get install libfreetype6-dev libtool
-#git clone git://github.com/ramunasd/mod_tile.git
-#apt-get -y install autoconf make
-apache2-threaded-dev
-
-# see http://switch2osm.org/serving-tiles/building-a-tile-server-from-packages/
-sudo apt-get -y install libapache2-mod-tile
-touch /var/lib/mod_tile/planet-import-complete # the timestamp on this will tell mod_tile when to re-render tiles (shouldn't be useful for me though, cause i need an expiry list)
-
-# Edit /etc/apache2/sites-available/tileserver_site
-IP=$(curl ifconfig.me)
-sed -i s/"a.tile.mytileserver.org b.tile.mytileserver.org c.tile.mytileserver.org"/"$IP"/ /etc/apache2/sites-available/tileserver_site
-
-# Now edit the renderd daemon settings
-rm /etc/renderd.conf
-touch /etc/renderd.conf
-echo "[renderd]
-stats_file=/var/run/renderd/renderd.stats
-socketname=/var/run/renderd/renderd.sock
-num_threads=4
-tile_dir=/var/lib/mod_tile ; DOES NOT WORK YET
-
-[mapnik]
-plugins_dir=/usr/lib/mapnik/2.0/input
-font_dir=/usr/share/fonts/truetype/ttf-dejavu
-font_dir_recurse=false
-
-[default]
-URI=/$DB_NAME/
-XML=$HOME/project/default/default.xml
-DESCRIPTION=This is the default TileScape style
-;ATTRIBUTION=&copy;<a href=\"http://www.openstreetmap.org/\">OpenStreetMap</a> and <a href=\"http://wiki.openstreetmap.org/w\
-iki/Contributors\">contributors</a>, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>
-;HOST=$IP
-;SERVER_ALIAS=$IP
-;HTCPHOST=proxy.openstreetmap.org" > /etc/renderd.conf
-
-# And restart up the daemon and restart Apache
-sudo /etc/init.d/renderd restart
-sudo /etc/init.d/apache2 restart
-
+#####################
+## Setup Tilecache ##
+#####################
+echo "##############################################"
+echo "Installing TileCache..."
+echo "##############################################"
+cd /var/www
+wget http://tilecache.org/tilecache-2.11.tar.gz
+tar -zvxf tilecache-*.tar.gz
+rm tilecache-*.tar.gz
+mv tilecache-* tilecache
+echo "
+[osm]
+type=Mapnik
+mapfile=/root/tilescape/project/default/default.xml
+spherical_mercator=true" >> tilecache/tilecache.cfg
+echo "
+<Directory /var/www/tilecache>
+     AddHandler cgi-script .cgi
+     Options +ExecCGI
+</Directory>" >> /etc/apache2/apache2.conf
+/etc/init.d/apache2 restart
 
 
 #############################
 ## Generate a sample image ##
 #############################
+IP=$(curl ifconfig.me)
 cd $THIS
 sed -i s/"bounds = (-6.5, 49.5, 2.1, 59)"/"bounds = ($MIN_LON, $MIN_LAT, $MAX_LON, $MAX_LAT)"/ generate_image.py
 ./generate_image.py
@@ -417,8 +404,22 @@ echo ""
 #########################################
 cd $THIS
 cp map.html /var/www/map.html
-sed -i s/"TILE_LOCATION"/"$IP\/$DB_NAME"/ /var/www/map.html
-echo "Go to http://$IP/map.html to see."
+echo "Go to http://$IP/map.html to see your tiles working..."
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
