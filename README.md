@@ -1,7 +1,7 @@
 TileScape
 ==========
 
-###![screenshot](https://raw.github.com/mapbox/osm-bright/master/preview.png)
+###![screenshot](https://raw.github.com/jeffhaack/tilescape/master/preview.png)
 
 TileScape provides scripts and templates that make it easy for you to set up
 an OpenStreetMap server capable of dynamically serving custom tiles from your
