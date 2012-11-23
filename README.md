@@ -4,9 +4,9 @@ TileScape
 ###![screenshot](https://raw.github.com/jeffhaack/tilescape/master/preview.png)
 
 TileScape provides scripts and templates that make it easy for you to set up
-an OpenStreetMap server capable of dynamically serving custom tiles from your
-own server.  It also helps you get started designing maps with TileMill, and
-easily transitioning your styles to your own tile server.
+an OpenStreetMap server capable of dynamically serving custom tiles.  It also
+helps you get started designing maps with TileMill, and easily transitioning
+your styles to your own tile server.
 
 This is a work in progress and you are encouraged to use the
 [issue tracker][] to note missing features or problems with the current
@@ -28,7 +28,7 @@ An OpenStreetMap server capable of serving tiles requires the following:
 - osm2pgsql (a program for importing OSM data into your postgis database)
 - mapnik (renders image tiles from the database; we require >= 2.0.2 for TileMill compatibility)
 - apache2 (web server to serve tiles)
-- mod_tile (an apache module that renders tiles on the fly, using the renderd daemon)
+- tilecache (a cgi program which renders and caches tiles)
 - osmosis (optional - if you want to update your database regularly with diffs)
 
 TileScape provides a shell script that will set up a new Ubuntu 12.04 machine as your
@@ -67,7 +67,7 @@ To run the script on a new machine:
 	scripts/provision_precise1204.sh
 
 This script should work cleanly on a freshly installed Ubuntu 12.04 machine.  If you are having
-difficulty with it, you may need to try installin everything manually.
+difficulty with it, you may need to try installing everything manually.
 
 When the script has finished running, you should be able to see your first set of tiles at
 
@@ -79,73 +79,72 @@ and rollin'.
 
 ### 2. Setup Your Local Machine with TileMill and PostGIS ###
 
+Next you will want your local machine to be set up so that you can easily style your maps
+with TileMill and seamlessly transfer the styles to your server.  You will need the following
+on your local machine:
+
+- Postgresql with PostGIS extensions (optional)
+- a database with osm data, such as the one created on the server in step 1 (optional)
+- [TileMill]
+
+It is recommended that you set up a PostGIS database on your local machine for designing
+stylesheets in TileMill. This is not strictly necessary, as you could easily connect to
+your server database, but because your server is probably located remotely it will take
+considerable time to query the database, and when you are designing in TileMill you will
+want your tiles to update quickly.
+
+If you are installing on Mac OS X, we recommend using the installers provided at
+[http://www.kyngchaos.com/software:postgres]
+
+Run the PostgreSQL 9.1.* and PostGIS 2.0.* for Postgres 9.1 installers.
+
+Create a database:
+
+	psql -U postgres -c "create database tilemill_osm;"
+	psql -U postgres -d tilemill_osm -c "CREATE EXTENSION postgis;"
+
+Download an extract file from [GeoFabrik][]. It can be anything you want to use in TileMill,
+but it will be easier to design if you import the same data that you did on the server.
+
+Then import the data into your database:
+
+	osm2pgsql -c -G -U postgres -d tilemill_osm -S /usr/local/share/osm2pgsql/default.style OSM_FILE
+
+Go the the scripts directory of tilescape and run
+
+	./setup_local.sh
+
+to download the base shapefiles.
+
+Edit the settings in create_project.sh.  Then run it:
+
+	./create_project.sh
+
+This will create a new project in your TileMill directory that you can edit with TileMill.
+
+When you are done styling this you can (reasonably) easily send it to your server. First
+in TileMill go to "Export -> Mapnik XML" and save the file as "mapnik.xml" in the TileMill
+project directory.
+
+Then then run the ruby script in the tilescape scripts directory.  This script will copy the mapnik.xml
+file, edit the paths to shapefiles and database settings so that it matches those on your server, and then
+it will use scp to upload the files onto your server and add the project to tilecache.
+
+	ruby push_project.rb
 
 
-You will need an OSM database extract in one of the following formats:
 
-- .osm.pbf (binary; smallest & fastest)
-- .osm.bz2 (compressed xml)
-- .osm (xml)
 
-You can find appropriate data extracts for a variety of regions at
-<http://download.geofabrik.de/osm> or <http://downloads.cloudmade.com>. Exracts
-of select metropolitan areas are available at <http://metro.teczno.com>. See
-[the OSM wiki][2] for information about (very large) full-planet downloads.
 
-You need to process this data and import it to your PostGIS database. You can
-do this with either [Imposm][] or [osm2pgsql][]; see their respective websites
-for installation instructions.
 
-#### Using Imposm
 
-If you are using Imposm, you should use the [included mapping configuration][4]
-which includes a few important tags compared to the default. The Imposm import 
-command looks like this:
 
-    imposm -U <postgres_user> -d <postgis_database> \
-      -m /path/to/osm-bright/imposm-mapping.py --read --write \
-      --optimize --deploy-production-tables <data.osm.pbf>
 
-See `imposm --help` or the [online documentation][3] for more details.
 
-#### Using osm2pgsql
 
-If you are using osm2pgsql the default style file should work well. The 
-osm2pgsql import command looks like this:
 
-    osm2pgsql -c -G -U <postgres_user> -d <postgis_database> <data.osm.pbf>
 
-See `man osm2pgsql` or the [online documentation][5] for more details.
 
-[2]: http://wiki.openstreetmap.org/wiki/Planet
-[Imposm]: http://imposm.org/
-[3]: http://imposm.org/
-[4]: https://github.com/mapbox/osm-bright/blob/master/imposm-mapping.py
-[osm2pgsql]: http://wiki.openstreetmap.org/wiki/Osm2pgsql
-[5]: http://wiki.openstreetmap.org/wiki/Osm2pgsql
 
-### 3. Edit the configuration ###
 
-You'll need to adjust some settings for things like your PostgreSQL connection
-information.
 
-1. Make a copy of `configure.py.sample` and name it `configure.py`.
-2. Open `configure.py` in a text editor.
-3. Make sure the "importer" option matches the program you used to import your 
-   data (either "imposm" or "osm2pgsql").
-4. Optionally change the name of your project from the default, 'OSM Bright'.
-5. Adjust the path to point to your MapBox project folder.
-6. Make any adjustments to the PostgreSQL connection settings. Your database
-   may be set up so that you require a password or different user name.
-7. Optionally adjust the query extents or shapefile locations. (Refer to the 
-   comments in the configuration file for more information.)
-8. Save & close the file.
-
-### 4. Run make.py ###
-
-This will create a new folder called "build" with your new project, customized
-with the variables you set in `configure.py` and install a copy of this build
-to your MapBox project folder. If you open up TileMill you should see your new
-map in the project listing.
-
-You're now ready to start editing the template in TileMill!

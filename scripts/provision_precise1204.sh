@@ -183,7 +183,7 @@ if [ ! -x $OSM2PGSQL ]; then
 	echo "##############################################"
 	sudo add-apt-repository -y ppa:kakrueger/openstreetmap
 	sudo apt-get update
-	sudo apt-get -y install -y osm2pgsql
+	sudo apt-get -y install osm2pgsql
 else
 	echo "Osm2pgsql already installed..."
 fi

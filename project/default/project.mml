@@ -33,7 +33,7 @@
       "id": "shoreline_300",
       "class": "",
       "Datasource": {
-        "file": "../../shared/shapefiles/shoreline_300.shp"
+        "file": "SHARED_SHP/shoreline_300.shp"
       },
       "srs-name": "autodetect",
       "srs": "",
@@ -51,7 +51,7 @@
       "id": "land",
       "class": "",
       "Datasource": {
-        "file": "../../shared/shapefiles/10m-land.shp"
+        "file": "SHARED_SHP/10m-land.shp"
       },
       "srs-name": "autodetect",
       "srs": "",
@@ -69,7 +69,7 @@
       "id": "processed_p",
       "class": "",
       "Datasource": {
-        "file": "../../shared/shapefiles/coastline-good.shp"
+        "file": "SHARED_SHP/coastline-good.shp"
       },
       "srs-name": "autodetect",
       "srs": "",
@@ -78,10 +78,10 @@
     },
     {
       "Datasource": {
-        "dbname": "osm",
+        "dbname": "DB_NAME",
         "extent": "-20037508.34 -20037508.34 20037508.34 20037508.34",
         "geometry_field": "way",
-        "host": "108.166.76.241",
+        "host": "localhost",
         "id": "landuse_gen0",
         "key_field": "",
         "port": "5432",
@@ -101,10 +101,10 @@
     },
     {
       "Datasource": {
-        "dbname": "osm",
+        "dbname": "DB_NAME",
         "extent": "-20037508.34 -20037508.34 20037508.34 20037508.34",
         "geometry_field": "way",
-        "host": "108.166.76.241",
+        "host": "localhost",
         "id": "landuse_gen1",
         "key_field": "",
         "port": "5432",
@@ -124,10 +124,10 @@
     },
     {
       "Datasource": {
-        "dbname": "osm",
+        "dbname": "DB_NAME",
         "extent": "-20037508.34 -20037508.34 20037508.34 20037508.34",
         "geometry_field": "way",
-        "host": "108.166.76.241",
+        "host": "localhost",
         "id": "landuse",
         "key_field": "",
         "port": "5432",
@@ -147,10 +147,10 @@
     },
     {
       "Datasource": {
-        "dbname": "osm",
+        "dbname": "DB_NAME",
         "extent": "-20037508.34 -20037508.34 20037508.34 20037508.34",
         "geometry_field": "way",
-        "host": "108.166.76.241",
+        "host": "localhost",
         "id": "waterway",
         "key_field": "",
         "port": "5432",
@@ -170,10 +170,10 @@
     },
     {
       "Datasource": {
-        "dbname": "osm",
+        "dbname": "DB_NAME",
         "extent": "-20037508.34 -20037508.34 20037508.34 20037508.34",
         "geometry_field": "way",
-        "host": "108.166.76.241",
+        "host": "localhost",
         "key_field": "",
         "port": "5432",
         "table": "( SELECT way, waterway AS type\n  FROM planet_osm_line\n  WHERE waterway IN ('river', 'canal', 'stream')\n) AS data",
@@ -189,10 +189,10 @@
     },
     {
       "Datasource": {
-        "dbname": "osm",
+        "dbname": "DB_NAME",
         "extent": "-20037508.34 -20037508.34 20037508.34 20037508.34",
         "geometry_field": "way",
-        "host": "108.166.76.241",
+        "host": "localhost",
         "key_field": "",
         "port": "5432",
         "table": "( SELECT way, waterway AS type\n  FROM planet_osm_line\n  WHERE waterway IN ('river', 'canal', 'stream', 'ditch', 'drain')\n) AS data",
@@ -208,10 +208,10 @@
     },
     {
       "Datasource": {
-        "dbname": "osm",
+        "dbname": "DB_NAME",
         "extent": "-20037508.34 -20037508.34 20037508.34 20037508.34",
         "geometry_field": "way",
-        "host": "108.166.76.241",
+        "host": "localhost",
         "id": "water_gen0",
         "key_field": "",
         "port": "5432",
@@ -231,10 +231,10 @@
     },
     {
       "Datasource": {
-        "dbname": "osm",
+        "dbname": "DB_NAME",
         "extent": "-20037508.34 -20037508.34 20037508.34 20037508.34",
         "geometry_field": "way",
-        "host": "108.166.76.241",
+        "host": "localhost",
         "id": "water_gen1",
         "key_field": "",
         "port": "5432",
@@ -254,10 +254,10 @@
     },
     {
       "Datasource": {
-        "dbname": "osm",
+        "dbname": "DB_NAME",
         "extent": "-20037508.34 -20037508.34 20037508.34 20037508.34",
         "geometry_field": "way",
-        "host": "108.166.76.241",
+        "host": "localhost",
         "id": "water",
         "key_field": "",
         "port": "5432",
@@ -277,10 +277,10 @@
     },
     {
       "Datasource": {
-        "dbname": "osm",
+        "dbname": "DB_NAME",
         "extent": "-20037508.34 -20037508.34 20037508.34 20037508.34",
         "geometry_field": "way",
-        "host": "108.166.76.241",
+        "host": "localhost",
         "id": "landuse_overlays",
         "key_field": "",
         "port": "5432",
@@ -299,10 +299,10 @@
     },
     {
       "Datasource": {
-        "dbname": "osm",
+        "dbname": "DB_NAME",
         "extent": "-20037508.34 -20037508.34 20037508.34 20037508.34",
         "geometry_field": "way",
-        "host": "108.166.76.241",
+        "host": "localhost",
         "id": "admin",
         "key_field": "",
         "port": "5432",
@@ -320,10 +320,10 @@
     },
     {
       "Datasource": {
-        "dbname": "osm",
+        "dbname": "DB_NAME",
         "extent": "-20037508.34 -20037508.34 20037508.34 20037508.34",
         "geometry_field": "way",
-        "host": "108.166.76.241",
+        "host": "localhost",
         "key_field": "",
         "port": "5432",
         "table": "( SELECT way, \"building\" AS type\n  FROM planet_osm_polygon\n  WHERE building NOT IN ('0','false', 'no')\n  ORDER BY ST_YMin(ST_Envelope(way)) DESC\n) AS data",
@@ -339,10 +339,10 @@
     },
     {
       "Datasource": {
-        "dbname": "osm",
+        "dbname": "DB_NAME",
         "extent": "-20037508.34 -20037508.34 20037508.34 20037508.34",
         "geometry_field": "way",
-        "host": "108.166.76.241",
+        "host": "localhost",
         "id": "aeroway",
         "key_field": "",
         "port": "5432",
@@ -362,10 +362,10 @@
     },
     {
       "Datasource": {
-        "dbname": "osm",
+        "dbname": "DB_NAME",
         "extent": "-20037508.34 -20037508.34 20037508.34 20037508.34",
         "geometry_field": "way",
-        "host": "108.166.76.241",
+        "host": "localhost",
         "id": "tunnel",
         "key_field": "",
         "port": "5432",
@@ -384,10 +384,10 @@
     },
     {
       "Datasource": {
-        "dbname": "osm",
+        "dbname": "DB_NAME",
         "extent": "-20037508.34 -20037508.34 20037508.34 20037508.34",
         "geometry_field": "way",
-        "host": "108.166.76.241",
+        "host": "localhost",
         "id": "turning_circle_case",
         "key_field": "",
         "port": "5432",
@@ -406,10 +406,10 @@
     },
     {
       "Datasource": {
-        "dbname": "osm",
+        "dbname": "DB_NAME",
         "extent": "-20037508.34 -20037508.34 20037508.34 20037508.34",
         "geometry_field": "way",
-        "host": "108.166.76.241",
+        "host": "localhost",
         "id": "roads_high",
         "key_field": "",
         "port": "5432",
@@ -428,10 +428,10 @@
     },
     {
       "Datasource": {
-        "dbname": "osm",
+        "dbname": "DB_NAME",
         "extent": "-20037508.34 -20037508.34 20037508.34 20037508.34",
         "geometry_field": "way",
-        "host": "108.166.76.241",
+        "host": "localhost",
         "key_field": "",
         "port": "5432",
         "table": "( SELECT way, highway AS type\n  FROM planet_osm_roads\n  WHERE highway IN ('motorway', 'trunk', 'primary', 'secondary', 'motorway_link', 'trunk_link')\n) AS data",
@@ -447,10 +447,10 @@
     },
     {
       "Datasource": {
-        "dbname": "osm",
+        "dbname": "DB_NAME",
         "extent": "-20037508.34 -20037508.34 20037508.34 20037508.34",
         "geometry_field": "way",
-        "host": "108.166.76.241",
+        "host": "localhost",
         "key_field": "",
         "port": "5432",
         "table": "( SELECT way, highway AS type, bridge, tunnel\n    FROM planet_osm_roads\n    WHERE highway IN ('motorway', 'trunk')\n) AS data",
@@ -467,10 +467,10 @@
     },
     {
       "Datasource": {
-        "dbname": "osm",
+        "dbname": "DB_NAME",
         "extent": "-20037508.34 -20037508.34 20037508.34 20037508.34",
         "geometry_field": "way",
-        "host": "108.166.76.241",
+        "host": "localhost",
         "key_field": "",
         "port": "5432",
         "table": "( SELECT way \n  FROM planet_osm_point\n  WHERE highway = 'turning_circle'\n) AS data",
@@ -486,10 +486,10 @@
     },
     {
       "Datasource": {
-        "dbname": "osm",
+        "dbname": "DB_NAME",
         "extent": "-20037508.34 -20037508.34 20037508.34 20037508.34",
         "geometry_field": "way",
-        "host": "108.166.76.241",
+        "host": "localhost",
         "id": "bridge",
         "key_field": "",
         "port": "5432",
@@ -509,10 +509,10 @@
     },
     {
       "Datasource": {
-        "dbname": "osm",
+        "dbname": "DB_NAME",
         "extent": "-20037508.34 -20037508.34 20037508.34 20037508.34",
         "file": "http://mapbox-geodata.s3.amazonaws.com/natural-earth-1.4.0/cultural/10m-populated-places-simple.zip",
-        "host": "108.166.76.241",
+        "host": "localhost",
         "port": "5432",
         "user": "postgres"
       },
@@ -525,10 +525,10 @@
     },
     {
       "Datasource": {
-        "dbname": "osm",
+        "dbname": "DB_NAME",
         "extent": "-20037508.34 -20037508.34 20037508.34 20037508.34",
         "geometry_field": "way",
-        "host": "108.166.76.241",
+        "host": "localhost",
         "id": "place",
         "key_field": "",
         "port": "5432",
@@ -548,10 +548,10 @@
     },
     {
       "Datasource": {
-        "dbname": "osm",
+        "dbname": "DB_NAME",
         "extent": "-20037508.34 -20037508.34 20037508.34 20037508.34",
         "geometry_field": "way",
-        "host": "108.166.76.241",
+        "host": "localhost",
         "id": "landuse_label",
         "key_field": "",
         "port": "5432",
@@ -571,10 +571,10 @@
     },
     {
       "Datasource": {
-        "dbname": "osm",
+        "dbname": "DB_NAME",
         "extent": "-20037508.34 -20037508.34 20037508.34 20037508.34",
         "geometry_field": "way",
-        "host": "108.166.76.241",
+        "host": "localhost",
         "id": "motorway_label",
         "key_field": "",
         "port": "5432",
@@ -594,10 +594,10 @@
     },
     {
       "Datasource": {
-        "dbname": "osm",
+        "dbname": "DB_NAME",
         "extent": "-20037508.34 -20037508.34 20037508.34 20037508.34",
         "geometry_field": "way",
-        "host": "108.166.76.241",
+        "host": "localhost",
         "id": "mainroad_label",
         "key_field": "",
         "port": "5432",
@@ -617,10 +617,10 @@
     },
     {
       "Datasource": {
-        "dbname": "osm",
+        "dbname": "DB_NAME",
         "extent": "-20037508.34 -20037508.34 20037508.34 20037508.34",
         "geometry_field": "way",
-        "host": "108.166.76.241",
+        "host": "localhost",
         "id": "minorroad_label",
         "key_field": "",
         "port": "5432",
@@ -640,10 +640,10 @@
     },
     {
       "Datasource": {
-        "dbname": "osm",
+        "dbname": "DB_NAME",
         "extent": "-20037508.34 -20037508.34 20037508.34 20037508.34",
         "geometry_field": "way",
-        "host": "108.166.76.241",
+        "host": "localhost",
         "id": "waterway_label",
         "key_field": "",
         "port": "5432",
@@ -666,5 +666,5 @@
   "metatile": 2,
   "attribution": "Data © OpenStreetMap (and) contributors, CC-BY-SA",
   "description": "",
-  "name": "tilescape_base_template"
+  "name": "NEW_PROJECT_NAME"
 }
