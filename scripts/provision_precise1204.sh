@@ -165,9 +165,13 @@ if [ ! -x $OSMOSIS ]; then
 	sudo apt-get -y install openjdk-6-jdk
 	wget http://bretth.dev.openstreetmap.org/osmosis-build/osmosis-latest.tgz
 	tar xvfz osmosis-latest.tgz
-	cd osmosis-*
+	
+	#cd osmosis-*		# annoyingly this doesn't extract to a folder anymore, so changing below...
+	#chmod a+x bin/osmosis
+	#ln -s $SRC/osmosis-*/bin/osmosis /bin/osmosis
 	chmod a+x bin/osmosis
-	ln -s $SRC/osmosis-*/bin/osmosis /bin/osmosis
+	ln -s $SRC/bin/osmosis /bin/osmosis
+
 	cd $HOME
 else
 	echo "Osmosis already installed..."
