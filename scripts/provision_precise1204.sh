@@ -24,15 +24,24 @@
 # File Settings #
 #################
 # Set this to FILE OR EXTRACT
-IMPORT_STRATEGY="FILE"
+#IMPORT_STRATEGY="FILE"
 # Set these options - if you are using EXTRACT strategy, the bounding box you provide
 #  will be sliced out of the file you download
-FILE="gaza.osm.bz2"
-DOWNLOAD_FILE="http://download.geofabrik.de/openstreetmap/asia/$FILE"
-MIN_LON="34.125" 	# left
-MIN_LAT="31.16" 	# bottom
-MAX_LON="34.648" 	# right
-MAX_LAT="31.708" 	# top
+#FILE="israel-and-palestine-latest.osm.bz2"
+#DOWNLOAD_FILE="http://download.geofabrik.de/asia/$FILE"
+#MIN_LON="34.125" 	# left
+#MIN_LAT="31.16" 	# bottom
+#MAX_LON="34.648" 	# right
+#MAX_LAT="31.708" 	# top
+
+# This is for Georgia and surroundings:(Caucasus):
+IMPORT_STRATEGY="EXTRACT"
+FILE="asia-latest.osm.bz2"
+DOWNLOAD_FILE="http://download.geofabrik.de/$FILE"
+MIN_LON="38.5839844"    # left
+MIN_LAT="38.0999826"    # bottom
+MAX_LON="50.4931641"    # right
+MAX_LAT="44.0244215"    # top
 
 #####################
 # Database Settings #
